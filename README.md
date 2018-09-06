@@ -1,5 +1,13 @@
 # Dispmanx
 
+## READ ME FIRST!
+
+Please note that this is a fork of a fairly old version of this software, where pngview was hacked so as to allow displayed images to be steered around the screen by passing it X/Y coordinates on stdin.
+
+The original repo is at: https://github.com/AndrewFromMelbourne/raspidmx/
+
+## Introduction
+
 There are a number of APIs available for the Raspberry Pi that can make use
 of the computers GPU. These include OpenMAX, Open GL ES(1 and 2) and OpenVG.
 The raspberrypi/firmware repository has short examples for these and other
