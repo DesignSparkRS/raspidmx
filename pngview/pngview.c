@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "backgroundLayer.h"
 #include "imageLayer.h"
@@ -88,6 +89,36 @@ void usage(void)
 }
 
 //-------------------------------------------------------------------------
+
+#define OK       0
+#define NO_INPUT 1
+#define TOO_LONG 2
+static int getLine (char *prmpt, char *buff, size_t sz) {
+    int ch, extra;
+    
+    // Get line with buffer overrun protection.
+    if (prmpt != NULL) {
+        printf ("%s", prmpt);
+        fflush (stdout);
+    }
+    if (fgets (buff, sz, stdin) == NULL)
+    return NO_INPUT;
+    
+    // If it was too long, there'll be no newline. In that case, we flush
+    // to end of line so that excess doesn't affect the next call.
+    if (buff[strlen(buff)-1] != '\n') {
+        extra = 0;
+        while (((ch = getchar()) != '\n') && (ch != EOF))
+        extra = 1;
+        return (extra == 1) ? TOO_LONG : OK;
+    }
+    
+    // Otherwise remove newline and give string back to caller.
+    buff[strlen(buff)-1] = '\0';
+    return OK;
+}
+
+//-----------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -233,92 +264,193 @@ int main(int argc, char *argv[])
 
     while (run)
     {
-        int c = 0;
-        if (keyPressed(&c))
-        {
-            c = tolower(c);
-
-            bool moveLayer = false;
-
-            switch (c)
-            {
-            case 27:
-
-                run = false;
-                break;
-
-            case 'a':
-
-                xOffset -= step;
-                moveLayer = true;
-                break;
-
-            case 'd':
-
-                xOffset += step;
-                moveLayer = true;
-                break;
-
-            case 'w':
-
-                yOffset -= step;
-                moveLayer = true;
-                break;
-
-            case 's':
-
-                yOffset += step;
-                moveLayer = true;
-                break;
-
-            case '+':
-
-                if (step == 1)
-                {
-                    step = 5;
-                }
-                else if (step == 5)
-                {
-                    step = 10;
-                }
-                else if (step == 10)
-                {
-                    step = 20;
-                }
-                break;
-
-            case '-':
-
-                if (step == 20)
-                {
-                    step = 10;
-                }
-                else if (step == 10)
-                {
-                    step = 5;
-                }
-                else if (step == 5)
-                {
-                    step = 1;
-                }
-                break;
-            }
-
-            if (moveLayer)
-            {
-                update = vc_dispmanx_update_start(0);
-                assert(update != 0);
-
-                moveImageLayer(&imageLayer, xOffset, yOffset, update);
-
-                result = vc_dispmanx_update_submit_sync(update);
-                assert(result == 0);
-            }
+        
+        bool moveLayer = false;
+        
+//        int ch = 0;
+//        
+//        ch = getc( stdin );
+//        
+//        switch (ch){
+//            case 27:
+//                run = false;
+//                break;
+//                
+//            case '1':
+//                xOffset = 100;
+//                moveLayer = true;
+//                break;
+//               
+//            case '2':
+//                xOffset = 200;
+//                moveLayer = true;
+//                break;
+//                
+//            case '3':
+//                xOffset = 300;
+//                moveLayer = true;
+//                break;
+//                
+//            case '4':
+//                xOffset = 400;
+//                moveLayer = true;
+//                break;
+//                
+//            case '5':
+//                xOffset = 500;
+//                moveLayer = true;
+//                break;
+//                
+//            case '6':
+//                xOffset = 600;
+//                moveLayer = true;
+//                break;
+//                
+//        }
+        
+        
+        
+//while (getline(cin,stdin)) {
+        
+        //there is no find in c
+        // use strstr
+        //there is no std::string also just char arrays
+            
+            
+//            if (lineInput.find("x:")){
+//                std::string sx;
+//                sx = lineInput.substr((lineInput.find("x:") + 2), string::npos);
+//                xOffset = strtol(sx, NULL, 10);
+//                moveLayer = true;
+//            }
+//            
+//            if (lineInput.find("y:")){
+//                std::string sy;
+//                sy = lineInput.substr((lineInput.find"y:") + 2), string::npos);
+//                yOffset = strtol(sy, NULL, 10);
+//                moveLayer = true;
+//            }
+//}
+ 
+        
+        int rc;
+        char buff[20];
+        
+        rc = getLine (NULL, buff, sizeof(buff));
+        if (rc == OK) {
+            
+            char * pch;
+            pch = strtok (buff," :;,");
+            xOffset = strtol(pch, NULL, 10);
+            
+            pch = strtok (NULL, " :;,");
+            yOffset = strtol(pch, NULL, 10);
+            
+            moveLayer = true;
         }
-        else
+        
+        
+        
+        
+        if (moveLayer)
         {
-            usleep(100000);
+            update = vc_dispmanx_update_start(0);
+            assert(update != 0);
+            
+            moveImageLayer(&imageLayer, xOffset -imageLayer.image.width/2, yOffset-imageLayer.image.height/2, update);
+            
+            result = vc_dispmanx_update_submit_sync(update);
+            assert(result == 0);
         }
+
+        
+///////////////////////////////////////////////////////////////////////////////////
+//        int c = 0;
+//        if (keyPressed(&c))
+//        {
+//            c = tolower(c);
+//
+//            
+//
+//            switch (c)
+//            {
+//            case 27:
+//
+//                run = false;
+//                break;
+//
+//            case 'a':
+//
+//                xOffset -= step;
+//                moveLayer = true;
+//                break;
+//
+//            case 'd':
+//
+//                xOffset += step;
+//                moveLayer = true;
+//                break;
+//
+//            case 'w':
+//
+//                yOffset -= step;
+//                moveLayer = true;
+//                break;
+//
+//            case 's':
+//
+//                yOffset += step;
+//                moveLayer = true;
+//                break;
+//
+//            case '+':
+//
+//                if (step == 1)
+//                {
+//                    step = 5;
+//                }
+//                else if (step == 5)
+//                {
+//                    step = 10;
+//                }
+//                else if (step == 10)
+//                {
+//                    step = 20;
+//                }
+//                break;
+//
+//            case '-':
+//
+//                if (step == 20)
+//                {
+//                    step = 10;
+//                }
+//                else if (step == 10)
+//                {
+//                    step = 5;
+//                }
+//                else if (step == 5)
+//                {
+//                    step = 1;
+//                }
+//                break;
+//            }
+//
+//            if (moveLayer)
+//            {
+//                update = vc_dispmanx_update_start(0);
+//                assert(update != 0);
+//
+//                moveImageLayer(&imageLayer, xOffset, yOffset, update);
+//
+//                result = vc_dispmanx_update_submit_sync(update);
+//                assert(result == 0);
+//            }
+//        }
+//        else
+//        {
+//            usleep(100000);
+//        }
     }
 
     //---------------------------------------------------------------------
